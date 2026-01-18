@@ -88,19 +88,19 @@ if [[ "$HYPERSCALER" == "google" ]]; then
 
     gcloud projects create ${PROJECT_ID}
 
-    open "https://console.cloud.google.com/billing/linkedaccount?project=$PROJECT_ID"
+    echo "## Open https://console.cloud.google.com/billing/linkedaccount?project=$PROJECT_ID and link a billing account" \
+        | gum format
 
-    echo "## LINK A BILLING ACCOUNT" | gum format
     gum input --placeholder "Press the enter key to continue."
 
-    open "https://console.cloud.google.com/marketplace/product/google/container.googleapis.com?project=$PROJECT_ID"
+    echo "## Open https://console.cloud.google.com/marketplace/product/google/container.googleapis.com?project=$PROJECT_ID and *ENABLE* the API" \
+        | gum format
 
-    echo "## *ENABLE* the API" | gum format
     gum input --placeholder "Press the enter key to continue."
 
-    open "https://console.cloud.google.com/apis/library/sqladmin.googleapis.com?project=$PROJECT_ID"
+    echo "## Open https://console.cloud.google.com/apis/library/sqladmin.googleapis.com?project=$PROJECT_ID and *ENABLE* the API" \
+        | gum format
 
-    echo "## *ENABLE* the API" | gum format
     gum input --placeholder "Press the enter key to continue."
 
     export SA_NAME=devops-toolkit
@@ -183,7 +183,7 @@ spec:
   id: cluster01
   compositionSelector:
     matchLabels:
-      provider: azure-official
+      provider: azure
       cluster: aks
   parameters:
     nodeSize: small
@@ -204,7 +204,7 @@ spec:
   id: $DB_NAME
   compositionSelector:
     matchLabels:
-      provider: azure-official
+      provider: azure
       db: postgresql
   parameters:
     version: \"11\"
@@ -240,6 +240,8 @@ kubectl create namespace a-team
 ###########
 
 REPO_URL=$(git config --get remote.origin.url)
+# workaround to avoid setting up SSH key in ArgoCD
+REPO_URL=$(echo $REPO_URL | sed 's/git@github.com:/https:\/\/github.com\//') # replace git@github.com: to https://github.com/
 
 yq --inplace ".spec.source.repoURL = \"$REPO_URL\"" argocd/apps.yaml
 
